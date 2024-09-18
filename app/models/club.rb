@@ -29,33 +29,34 @@ class Club < ApplicationRecord
   end
 
   def win_on(year)
-    year = Date.new(year, 1, 1)
-    count = 0
-    matches.where(kicked_off_at: year.all_year).each do |match|
-      count += 1 if won?(match)
-    end
-    count
+    matches_winner_count(year) { |match| won?(match)}
   end
 
   def lost_on(year)
-    year = Date.new(year, 1, 1)
-    count = 0
-    matches.where(kicked_off_at: year.all_year).each do |match|
-      count += 1 if lost?(match)
-    end
-    count
+    matches_winner_count(year) { |match| lost?(match)}
   end
 
   def draw_on(year)
-    year = Date.new(year, 1, 1)
-    count = 0
-    matches.where(kicked_off_at: year.all_year).each do |match|
-      count += 1 if draw?(match)
-    end
-    count
+    matches_winner_count(year) { |match| draw?(match)}
   end
 
-  def homebase
-    "#{hometown}, #{country}"
+  def average_player_age
+    (players.sum(&:age) / players.length).to_f
   end
 end
+
+private
+
+def matches_winner_count(year)
+  #yearインスタンスには、2013.1.1が入る
+year = Date.new(year, 1, 1)
+  #countを0に初期化する
+count = 0
+  #matchesテーブルの2013年全てのkicked_off_atをmatchに配列で入れる
+matches.where(kicked_off_at: year.all_year).each do |match|
+  #ifでmatches_winner_count(year)を使ってるメソッドにmatchを代入してく。→
+  count += 1 if yield(match)
+end
+count
+end
+

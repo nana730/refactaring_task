@@ -10,7 +10,8 @@ class ClubsController < ApplicationController
   # GET /clubs/1
   # GET /clubs/1.json
   def show
-    @players_average_age = (@club.players.sum(&:age) / @club.players.length).to_f
+    @players_average_age = @club.average_player_age
+    @players = @club.players.map { |player2| PlayerDecorator.new(player2) }
   end
 
   # GET /clubs/new
